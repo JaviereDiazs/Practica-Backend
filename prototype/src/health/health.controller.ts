@@ -2,9 +2,8 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { DataSource } from 'typeorm';
 
-// No @nestjs/terminus: its latest release doesn't support Nest 12 yet
-// (peer @nestjs/common ^10 || ^11). A hand-rolled check is simpler anyway.
-// `checks.cache` gets added in plan 05, once CACHE_MANAGER exists.
+// Hand-rolled instead of @nestjs/terminus: its latest release doesn't
+// support Nest 12 yet (peer @nestjs/common ^10 || ^11).
 @Controller('health')
 export class HealthController {
   constructor(private readonly dataSource: DataSource) {}

@@ -12,34 +12,5 @@ services:
       interval: 5s
       retries: 10
 
-  redis:
-    image: redis:8-alpine
-    ports: ['6379:6379']
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 5s
-      retries: 10
-
-  rabbitmq:
-    image: rabbitmq:4-management-alpine
-    ports:
-      - '5672:5672'   # AMQP
-      - '15672:15672' # management UI (guest/guest)
-    healthcheck:
-      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
-      interval: 10s
-      retries: 10
-
-  # Grafana + Tempo (traces) + Prometheus (metrics) + Loki (logs) in one image.
-  # We only expose the OTLP HTTP port (4318) since that's what the app's exporters
-  # use. The gRPC port (4317) is intentionally NOT published — it collides with
-  # other local tooling (e.g. an Aspire dashboard) that also binds 4317 on the host.
-  # ~1GB image — skip it and use OTEL_EXPORTER=console if the machine is tight on resources.
-  otel-lgtm:
-    image: grafana/otel-lgtm:latest
-    ports:
-      - '3001:3000' # Grafana UI (3000 is used by the app)
-      - '4318:4318' # OTLP HTTP
-
 volumes:
   pgdata:

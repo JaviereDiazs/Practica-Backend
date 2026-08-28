@@ -1,5 +1,5 @@
 import { plainToInstance, Transform, type TransformFnParams } from 'class-transformer';
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsString, Max, Min, validateSync } from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -7,14 +7,11 @@ enum Environment {
   Test = 'test',
 }
 
-enum OtelExporter {
-  Otlp = 'otlp',
-  Console = 'console',
-}
-
 // process.env values are always strings — class-transformer's implicit
-// numeric conversion works out of the box, but booleans need this explicit
-// mapping ("false" would otherwise coerce to `true`, since it's a non-empty string).
+// numeric conversion works out of the box (given an explicit `: number`
+// type annotation — this scaffold's compiler needs it, unlike plain tsc),
+// but booleans need this explicit mapping: "false" is a non-empty string,
+// so it would otherwise coerce to `true`.
 const toBoolean = ({ value }: TransformFnParams): boolean => value === true || value === 'true';
 
 class EnvironmentVariables {
@@ -26,7 +23,6 @@ class EnvironmentVariables {
   @Max(65535)
   PORT: number = 3000;
 
-  // Database
   @IsString()
   DB_HOST!: string;
 
@@ -45,64 +41,6 @@ class EnvironmentVariables {
   @Transform(toBoolean)
   @IsBoolean()
   DB_SYNCHRONIZE: boolean = false;
-
-  // Auth
-  @IsString()
-  JWT_SECRET!: string;
-
-  @IsString()
-  JWT_EXPIRES_IN: string = '3600s';
-
-  // Redis / cache
-  @IsString()
-  REDIS_HOST!: string;
-
-  @IsInt()
-  REDIS_PORT!: number;
-
-  @IsInt()
-  CACHE_TTL_MS: number = 30000;
-
-  // RabbitMQ
-  @IsString()
-  RABBITMQ_URL!: string;
-
-  @IsString()
-  RABBITMQ_EXCHANGE!: string;
-
-  @IsString()
-  RABBITMQ_QUEUE!: string;
-
-  // Jobs
-  @IsString()
-  JOBS_QUEUE_NAME!: string;
-
-  @IsInt()
-  JOBS_CONCURRENCY: number = 2;
-
-  @IsInt()
-  AI_MAX_CONCURRENCY: number = 3;
-
-  @IsInt()
-  AI_LATENCY_MS: number = 400;
-
-  // Observability
-  @Transform(toBoolean)
-  @IsBoolean()
-  OTEL_ENABLED: boolean = true;
-
-  @IsEnum(OtelExporter)
-  OTEL_EXPORTER: OtelExporter = OtelExporter.Otlp;
-
-  @IsString()
-  OTEL_SERVICE_NAME: string = 'practica-backend';
-
-  @IsOptional()
-  @IsString()
-  OTEL_EXPORTER_OTLP_ENDPOINT?: string;
-
-  @IsString()
-  LOG_LEVEL: string = 'debug';
 }
 
 /**
